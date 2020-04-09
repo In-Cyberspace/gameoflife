@@ -1,5 +1,0 @@
-{
-    "vscode-neovim.neovimInitPath": "/home/hugo/.config/nvim/init.vim",
-    "vscode-neovim.neovimPath": "/usr/bin/nvim",
-    "vscode-neovim.useWSL": true
-}
