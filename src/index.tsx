@@ -3,37 +3,76 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
 
-interface IGridProps {
-    gridFull: Array<any>,
-    
-    cols: number,
-    rows: number
+interface IBoxProps {
+    boxClass: string;
+    key: string;
+    boxId: string;
+    row: number;
+    col: number;
+    selectBox: string;
+}
 
+class Box extends Component<IBoxProps> {
+    selectBox = () => {
+        return this.props.selectBox(this.props.row, this.props.col);
+    }
+
+    render() {
+        return (
+            <div
+               className={this.props.boxClass}
+               id={this.props.boxId}
+               onClick={this.selectBox}/>);
+    }
+}
+
+interface IGridProps {
+    gridFull: Array<any>;
+    cols: number;
+    rows: number;
+    selectBox: string;
 }
 
 class Grid extends Component<IGridProps> {
-  render() {
-    const width = this.props.cols * 14;
-    var rowsArr:Array<any> = [];
-    var boxClass:string = "";
+    render() {
+        const width = this.props.cols * 14;
+        var rowsArr:Array<any> = [];
 
-    return (
-      <div className="grid" style={{width: width}}>
-        {{rowsArr}}
-      </div>
-    );
-  }
+        var boxClass:string = "";
+        for (var i = 0; i < this.props.rows; i++) {
+            for (var j = 0; j < this.props.cols; j++) {
+                let boxId = i + "_" + j;
+
+                boxClass = this.props.gridFull[i][j] ? "box on" : "box off";
+                rowsArr.push(
+                  <Box
+                    boxClass={boxClass}
+                    key={boxId}
+                    boxId={boxId}
+                    row={i}
+                    col={j}
+                    selectBox={this.props.selectBox}
+                  />);
+            }
+        }
+
+        return (
+          <div className="grid" style={{width: width}}>
+            {rowsArr}
+          </div>
+        );
+    }
 }
 
 interface IMainState {
-    generation: number,
-    gridFull: Array<any>
+    generation: number;
+    gridFull: Array<any>;
 }
 
  interface IMainProps {
-    cols: number,
-    rows: number,
-    speed: number
+    cols: number;
+    rows: number;
+    speed: number;
 }
 
 class Main extends Component<IMainProps, IMainState> {
@@ -65,6 +104,7 @@ constructor(props: IMainProps) {
           gridFull={this.state.gridFull}
           rows={this.props.rows}
           cols={this.props.cols}
+          selectBox={""}
         />
         <h2>
           Generations: {this.state.generation}
