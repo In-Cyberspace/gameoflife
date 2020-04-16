@@ -9,7 +9,7 @@ interface IBoxProps {
     boxId: string;
     row: number;
     col: number;
-    selectBox: string;
+    selectBox: any;
 }
 
 class Box extends Component<IBoxProps> {
@@ -81,13 +81,13 @@ class Main extends Component<IMainProps, IMainState> {
  */
 constructor(props: IMainProps) {
   super(props);
-
+  /**
   props = {
       cols: 50,
       rows: 30,
       speed: 100
   }
-
+  */
   this.state = {
     generation: 0,
     gridFull: Array(this.props.rows)
@@ -116,7 +116,11 @@ constructor(props: IMainProps) {
 
 ReactDOM.render(
   <React.StrictMode>
-    <Main />
+    <Main
+      cols={50}
+      rows={30}
+      speed={100}
+    />
   </React.StrictMode>,
   document.getElementById('root')
 );
