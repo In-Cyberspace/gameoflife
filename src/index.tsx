@@ -1,100 +1,112 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import * as serviceWorker from './serviceWorker';
+import React, { Component } from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import * as serviceWorker from "./serviceWorker";
 
 interface IBoxProps {
-    boxClass: string;
-    key: string;
-    boxId: string;
-    row: number;
-    col: number;
-    selectBox: any;
+  boxClass: string;
+  key: string;
+  boxId: string;
+  row: number;
+  col: number;
+  selectBox: any;
 }
 
 class Box extends Component<IBoxProps> {
-    selectBox = () => {
-        return this.props.selectBox(this.props.row, this.props.col);
-    }
+  selectBox = () => {
+    return this.props.selectBox(this.props.row, this.props.col);
+  };
 
-    render() {
-        return (
-            <div
-               className={this.props.boxClass}
-               id={this.props.boxId}
-               onClick={this.selectBox}/>);
-    }
+  render() {
+    return (
+      <div
+        className={this.props.boxClass}
+        id={this.props.boxId}
+        onClick={this.selectBox}
+      />
+    );
+  }
 }
 
 interface IGridProps {
-    gridFull: Array<any>;
-    cols: number;
-    rows: number;
-    selectBox: string;
+  gridFull: Array<any>;
+  cols: number;
+  rows: number;
+  selectBox: any;
 }
 
 class Grid extends Component<IGridProps> {
-    render() {
-        const width = this.props.cols * 14;
-        var rowsArr:Array<any> = [];
+  render() {
+    const width = this.props.cols * 16;
+    var rowsArr: Array<any> = [];
 
-        var boxClass:string = "";
-        for (var i = 0; i < this.props.rows; i++) {
-            for (var j = 0; j < this.props.cols; j++) {
-                let boxId = i + "_" + j;
+    var boxClass: string = "";
+    for (var i = 0; i < this.props.rows; i++) {
+      for (var j = 0; j < this.props.cols; j++) {
+        let boxId = i + "_" + j;
 
-                boxClass = this.props.gridFull[i][j] ? "box on" : "box off";
-                rowsArr.push(
-                  <Box
-                    boxClass={boxClass}
-                    key={boxId}
-                    boxId={boxId}
-                    row={i}
-                    col={j}
-                    selectBox={this.props.selectBox}
-                  />);
-            }
-        }
-
-        return (
-          <div className="grid" style={{width: width}}>
-            {rowsArr}
-          </div>
+        boxClass = this.props.gridFull[i][j] ? "box on" : "box off";
+        rowsArr.push(
+          <Box
+            boxClass={boxClass}
+            key={boxId}
+            boxId={boxId}
+            row={i}
+            col={j}
+            selectBox={this.props.selectBox}
+          />
         );
+      }
     }
+
+    return (
+      <div className="grid" style={{ width: width }}>
+        {rowsArr}
+      </div>
+    );
+  }
 }
 
 interface IMainState {
-    generation: number;
-    gridFull: Array<any>;
+  generation: number;
+  gridFull: Array<any>;
 }
 
- interface IMainProps {
-    cols: number;
-    rows: number;
-    speed: number;
+interface IMainProps {
+  cols: number;
+  rows: number;
+  speed: number;
 }
 
 class Main extends Component<IMainProps, IMainState> {
-/**
- *
- */
-constructor(props: IMainProps) {
-  super(props);
   /**
-  props = {
-      cols: 50,
-      rows: 30,
-      speed: 100
+   *
+   */
+  constructor(props: IMainProps) {
+    super(props);
+    /**
+    props = {
+        cols: 50,
+        rows: 30,
+        speed: 100
+    }
+    */
+    this.state = {
+      generation: 0,
+      gridFull: Array(this.props.rows)
+        .fill(0)
+        .map(() => Array(this.props.cols).fill(false)),
+    };
   }
-  */
-  this.state = {
-    generation: 0,
-    gridFull: Array(this.props.rows)
-    .fill(0)
-    .map(() => Array(this.props.cols).fill(false))
-  }
-}
+
+  // Method to indicate if a box has been selected. 
+  selectBox = (row: number, col: number) => {
+    let gridCopy = arrayClone(this.state.gridFull);
+    gridCopy[row][col] = !gridCopy[row][col];
+    this.setState({
+      gridFull: gridCopy,
+    });
+  };
 
   render() {
     return (
@@ -104,25 +116,23 @@ constructor(props: IMainProps) {
           gridFull={this.state.gridFull}
           rows={this.props.rows}
           cols={this.props.cols}
-          selectBox={""}
+          selectBox={this.selectBox}
         />
-        <h2>
-          Generations: {this.state.generation}
-        </h2>
+        <h2>Generations: {this.state.generation}</h2>
       </div>
     );
   }
 }
 
+function arrayClone(arr: Array<any>): Array<any> {
+  return JSON.parse(JSON.stringify(arr));
+}
+
 ReactDOM.render(
   <React.StrictMode>
-    <Main
-      cols={50}
-      rows={30}
-      speed={100}
-    />
+    <Main cols={50} rows={30} speed={100} />
   </React.StrictMode>,
-  document.getElementById('root')
+  document.getElementById("root")
 );
 
 // If you want your app to work offline and load faster, you can change
