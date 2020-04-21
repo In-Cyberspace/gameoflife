@@ -99,7 +99,7 @@ class Main extends Component<IMainProps, IMainState> {
     };
   }
 
-  // Method to indicate if a box has been selected. 
+  // A method to switch the box color to indicated it has been selected.
   selectBox = (row: number, col: number) => {
     let gridCopy = arrayClone(this.state.gridFull);
     gridCopy[row][col] = !gridCopy[row][col];
@@ -107,6 +107,26 @@ class Main extends Component<IMainProps, IMainState> {
       gridFull: gridCopy,
     });
   };
+
+  // A method used to seed the game as soon as the application loads.
+  // We set a 25% of turning on each square in the grid.
+  seed = () => {
+    let gridCopy = arrayClone(this.state.gridFull);
+    for (let i = 0; i < this.props.rows; i++) {
+      for (let j = 0; j < this.props.cols; j++) {
+        if (Math.floor(Math.random() * 4) === 1) {
+          gridCopy[i][j] = true;
+        }
+      }
+    }
+    this.setState({
+      gridFull: gridCopy,
+    });
+  };
+
+  componentDidMount() {
+    this.seed();
+  }
 
   render() {
     return (
@@ -124,6 +144,7 @@ class Main extends Component<IMainProps, IMainState> {
   }
 }
 
+// Used to create a copy of the grid.
 function arrayClone(arr: Array<any>): Array<any> {
   return JSON.parse(JSON.stringify(arr));
 }
