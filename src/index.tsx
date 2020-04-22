@@ -72,30 +72,25 @@ interface IMainState {
   gridFull: Array<any>;
 }
 
-interface IMainProps {
-  cols: number;
-  rows: number;
-  speed: number;
-}
+interface IMainProps {}
 
 class Main extends Component<IMainProps, IMainState> {
+  intervalId: any;
+
+  cols = 50;
+  rows = 30;
+  speed = 100;
+
   /**
    *
    */
   constructor(props: IMainProps) {
     super(props);
-    /**
-    props = {
-        cols: 50,
-        rows: 30,
-        speed: 100
-    }
-    */
     this.state = {
       generation: 0,
-      gridFull: Array(this.props.rows)
+      gridFull: Array(this.rows)
         .fill(0)
-        .map(() => Array(this.props.cols).fill(false)),
+        .map(() => Array(this.cols).fill(false)),
     };
   }
 
@@ -112,8 +107,8 @@ class Main extends Component<IMainProps, IMainState> {
   // We set a 25% of turning on each square in the grid.
   seed = () => {
     let gridCopy = arrayClone(this.state.gridFull);
-    for (let i = 0; i < this.props.rows; i++) {
-      for (let j = 0; j < this.props.cols; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.cols; j++) {
         if (Math.floor(Math.random() * 4) === 1) {
           gridCopy[i][j] = true;
         }
@@ -124,8 +119,50 @@ class Main extends Component<IMainProps, IMainState> {
     });
   };
 
+  // A method associated with the on screen play button.
+  // Whenever the play button is clicked everything starts
+  // over from the beginning.
+  // ...
+  // setInterval calls this.play at this.props.speed so
+  // this.play is called every 100 milliseconds
+  playButton = () => {
+    clearInterval(this.intervalId);
+    this.intervalId = setInterval(this.play, this.speed);
+  };
+
+  pauseButton = () => {
+      clearInterval(this.intervalId);
+  };
+
+  // The play method implements the main rules for the game.
+  play = () => {
+    let g = this.state.gridFull;
+    let g2 = arrayClone(this.state.gridFull);
+
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.cols; j++) {
+        let count = 0; // Number of neighbors
+        if (i > 0) if (g[i - 1][j]) count++;
+        if (i > 0 && j > 0) if (g[i - 1][j - 1]) count++;
+        if (i > 0 && j < this.cols - 1) if (g[i - 1][j + 1]) count++;
+        if (j < this.cols - 1) if (g[i][j + 1]) count++;
+        if (j > 0) if (g[i][j - 1]) count++;
+        if (i < this.rows - 1) if (g[i + 1][j]) count++;
+        if (i < this.rows - 1 && j > 0) if (g[i + 1][j - 1]) count++;
+        if (i < this.rows - 1 && this.cols - 1) if (g[i + 1][j + 1]) count++;
+        if (g[i][j] && (count < 2 || count > 3)) g2[i][j] = false;
+        if (!g[i][j] && count === 3) g2[i][j] = true;
+      }
+    }
+    this.setState({
+      gridFull: g2,
+      generation: this.state.generation + 1,
+    });
+  };
+
   componentDidMount() {
     this.seed();
+    this.playButton();
   }
 
   render() {
@@ -134,8 +171,8 @@ class Main extends Component<IMainProps, IMainState> {
         <h1>The Game of Life</h1>
         <Grid
           gridFull={this.state.gridFull}
-          rows={this.props.rows}
-          cols={this.props.cols}
+          rows={this.rows}
+          cols={this.cols}
           selectBox={this.selectBox}
         />
         <h2>Generations: {this.state.generation}</h2>
@@ -151,7 +188,7 @@ function arrayClone(arr: Array<any>): Array<any> {
 
 ReactDOM.render(
   <React.StrictMode>
-    <Main cols={50} rows={30} speed={100} />
+    <Main />
   </React.StrictMode>,
   document.getElementById("root")
 );
