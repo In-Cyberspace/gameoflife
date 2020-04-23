@@ -1,6 +1,10 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./index.css";
+import ButtonToolbar from "react-bootstrap/ButtonToolbar";
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownButton from "react-bootstrap/DropdownButton";
 import * as serviceWorker from "./serviceWorker";
 
 interface IBoxProps {
@@ -37,7 +41,7 @@ interface IGridProps {
 
 class Grid extends Component<IGridProps> {
   render() {
-    const width = this.props.cols * 16;
+    const width = this.props.cols * 14;
     var rowsArr: Array<any> = [];
 
     var boxClass: string = "";
@@ -62,6 +66,76 @@ class Grid extends Component<IGridProps> {
     return (
       <div className="grid" style={{ width: width }}>
         {rowsArr}
+      </div>
+    );
+  }
+}
+
+interface IButtonsProps {
+  playButton: any;
+  pauseButton: any;
+  slow: any;
+  fast: any;
+  clear: any;
+  seed: any;
+  gridSize: any;
+}
+
+class Buttons extends Component<IButtonsProps> {
+  handleSelect = (evt: string) => {
+    this.props.gridSize(evt);
+  };
+
+  render() {
+    return (
+      <div className="center">
+        <ButtonToolbar>
+          <button
+            className="btn btn-default text-white"
+            onClick={this.props.playButton}
+          >
+            Play
+          </button>
+          <button
+            className="btn btn-default text-white"
+            onClick={this.props.pauseButton}
+          >
+            Pause
+          </button>
+          <button
+            className="btn btn-default text-white"
+            onClick={this.props.clear}
+          >
+            Clear
+          </button>
+          <button
+            className="btn btn-default text-white"
+            onClick={this.props.slow}
+          >
+            Slow
+          </button>
+          <button
+            className="btn btn-default text-white"
+            onClick={this.props.fast}
+          >
+            Fast
+          </button>
+          <button
+            className="btn btn-default text-white"
+            onClick={this.props.seed}
+          >
+            Seed
+          </button>
+          <DropdownButton
+            title="Grid Size"
+            id="size-menu"
+            onSelect={this.handleSelect}
+          >
+            <Dropdown.Item eventKey="1">20x10</Dropdown.Item>
+            <Dropdown.Item eventKey="2">50x30</Dropdown.Item>
+            <Dropdown.Item eventKey="3">70x50</Dropdown.Item>
+          </DropdownButton>
+        </ButtonToolbar>
       </div>
     );
   }
@@ -119,19 +193,55 @@ class Main extends Component<IMainProps, IMainState> {
     });
   };
 
-  // A method associated with the on screen play button.
-  // Whenever the play button is clicked everything starts
-  // over from the beginning.
-  // ...
-  // setInterval calls this.play at this.props.speed so
-  // this.play is called every 100 milliseconds
+  // Methods to start/stop the game.
+  pauseButton = () => {
+    clearInterval(this.intervalId);
+  };
   playButton = () => {
     clearInterval(this.intervalId);
     this.intervalId = setInterval(this.play, this.speed);
   };
 
-  pauseButton = () => {
-      clearInterval(this.intervalId);
+  // Methods to control the speed of the game.
+  slow = () => {
+    this.speed = 1000;
+    this.playButton();
+  };
+
+  fast = () => {
+    this.speed = 100;
+    this.playButton();
+  };
+
+  // Clear the game.
+  // When refactoring the code, consider creating a
+  // single object to reference this array instead of
+  // duplicating the code.
+  clear = () => {
+    var grid = Array(this.rows)
+      .fill(0)
+      .map(() => Array(this.cols).fill(false));
+    this.setState({
+      gridFull: grid,
+      generation: 0,
+    });
+  };
+
+  gridSize = (size: string) => {
+    switch (size) {
+      case "1":
+        this.cols = 20;
+        this.rows = 10;
+        break;
+      case "2":
+        this.cols = 50;
+        this.rows = 30;
+        break;
+      default:
+        this.cols = 70;
+        this.rows = 50;
+    }
+    this.clear();
   };
 
   // The play method implements the main rules for the game.
@@ -169,6 +279,15 @@ class Main extends Component<IMainProps, IMainState> {
     return (
       <div>
         <h1>The Game of Life</h1>
+        <Buttons
+          playButton={this.playButton}
+          pauseButton={this.pauseButton}
+          slow={this.slow}
+          fast={this.fast}
+          clear={this.clear}
+          seed={this.seed}
+          gridSize={this.gridSize}
+        />
         <Grid
           gridFull={this.state.gridFull}
           rows={this.rows}
